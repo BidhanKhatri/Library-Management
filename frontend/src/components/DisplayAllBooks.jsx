@@ -41,9 +41,9 @@ function DisplayAllBooks() {
               <p className="font-bold text-3xl">{book.bookname}</p>
               <div className=" py-2 rounded-md">
                 <span className=" text-xs">
-                  <spa className="bg-yellow-500 rounded-md px-2 py-0.5 text-white">
+                  <span className="bg-yellow-500 rounded-md px-2 py-0.5 text-white">
                     Genere
-                  </spa>{" "}
+                  </span>{" "}
                   {book.genere?.join(", ")}
                 </span>
               </div>

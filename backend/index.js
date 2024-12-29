@@ -115,10 +115,12 @@ app.post("/admin-register", async (req, res) => {
   try {
     const { name, email, password, role, phone, address } = req.body;
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const createAdmin = new AdminModel({
       name,
       email,
-      password,
+      password: hashedPassword,
       role,
       phone,
       address,
@@ -127,9 +129,11 @@ app.post("/admin-register", async (req, res) => {
     await createAdmin.save();
 
     if (createAdmin) {
-      return res
-        .status(200)
-        .json({ msg: "Admin create successfully", data: createAdmin });
+      return res.status(200).json({
+        msg: "Admin create successfully",
+        status: 200,
+        data: createAdmin,
+      });
     }
   } catch (error) {
     return res
@@ -159,6 +163,38 @@ app.get("/admin-get-student", async (_, res) => {
         .json({ studentdata: data, totalStudent: totalStudent });
     } else {
       return res.status(400).json({ msg: "No student found" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ msg: "Internal server error", err: error.message });
+  }
+});
+
+//API for admin login
+app.post("/admin-login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "All fields are required" });
+    }
+
+    const findAdmin = await AdminModel.findOne({ email });
+
+    if (!findAdmin) {
+      return res.status(200).json({ msg: "Invalid Email address" });
+    }
+
+    const isMatch = await bcrypt.compare(password, findAdmin.password);
+
+    if (!isMatch) {
+      return res.status(200).json({ msg: "Invalid Credentials" });
+    }
+    if (findAdmin && isMatch) {
+      return res
+        .status(200)
+        .json({ msg: "Login successful", status: 200, data: findAdmin });
     }
   } catch (error) {
     return res

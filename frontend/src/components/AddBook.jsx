@@ -9,19 +9,18 @@ function AddBook() {
     publishdate: "",
     image: null,
   });
-  console.log(bookData);
+  // console.log(bookData);
 
   //function to handle form change
   function handleFormChange(e) {
+    
     const { name, value, type, files, checked } = e.target;
 
     setBookData((prev) => {
       if (type === "file") {
         return { ...prev, [name]: files[0] };
       } else if (type === "checkbox" && name === "genere") {
-        const updatedGenere = checked
-          ? [...prev.genere, value]
-          : prev.genere.filter((gen) => gen !== value);
+        const updatedGenere = checked ? [...prev.genere, value]: prev.genere.filter((gen) => gen !== value);
 
         return { ...prev, genere: updatedGenere };
       } else {
