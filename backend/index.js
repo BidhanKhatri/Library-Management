@@ -322,6 +322,27 @@ app.get("/get-all-books", async (req, res) => {
   }
 });
 
+//API to delete user
+app.delete("/delete-user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedStudent = await StudentModel.findByIdAndDelete(id);
+
+    if (deletedStudent) {
+      return res.status(200).json({
+        msg: `${deletedStudent.name} deleted successfully`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      msg: error.message || error,
+      success: false,
+      error: true,
+    });
+  }
+});
+
 //connection function call
 connectDB();
 

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function AdminNavbar() {
   return (
     <>
-      <nav className="w-64 bg-tailwindkocolor h-screen px-4 py-4 text-white">
+      <nav className="w-64 bg-tailwindkocolor h-screen sticky px-4 py-4 text-white">
         <ul className="space-y-4">
           <Link
             to="/admin/dashboard"
