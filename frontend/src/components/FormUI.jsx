@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import BookGif from "../assets/animations/book-animation.gif";
 
 function FormUI() {
   const [name, setName] = useState("");
@@ -41,8 +42,14 @@ function FormUI() {
       <div className=" h-screen flex justify-center items-center bg-[url('https://img.freepik.com/free-vector/set-torii-gates-water_52683-44986.jpg?t=st=1734932673~exp=1734936273~hmac=99376bb3c41195207dbaf898aac1af4d44573945c3d473468a47e51e131ba9f9&w=1480')] bg-cover bg-no-repeat bg-center">
         <form
           onSubmit={registerStudent}
-          className="bg-white/40 p-10 max-w-md rounded-xl shadow-md backdrop-blur-lg"
+          className="relative bg-white/40 p-10 max-w-md rounded-xl shadow-md backdrop-blur-lg"
         >
+          <img
+            src={BookGif}
+            alt="gif-image"
+            className="absolute -top-10 left-1/2 -translate-x-1/2 h-24 w-24 object-cover "
+          />
+
           <p className="text-3xl font-semibold mb-4 text-center text-white">
             Signup Form
           </p>

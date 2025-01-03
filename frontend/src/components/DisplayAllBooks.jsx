@@ -5,6 +5,8 @@ import { FiShoppingCart } from "react-icons/fi";
 function DisplayAllBooks() {
   const [books, setBooks] = useState([]);
 
+
+
   async function getBooks() {
     try {
       const result = await fetch("/proxy/get-all-books");

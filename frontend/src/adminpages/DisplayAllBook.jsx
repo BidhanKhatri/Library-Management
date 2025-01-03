@@ -1,8 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import BookUpdatePopup from "../components/BookUpdatePopup";
 
 function DisplayAllBook() {
   const [bookData, setBookData] = useState([]);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const [updateUserData, setUpdateUserData] = useState({
+    bookname: "",
+    author: "",
+    publishdate: "",
+    id:""
+  });
+
+  //function to handle popup open and close
+  function handlePopup(bookname, author, publishdate, id) {
+    setIsPopupOpen(!isPopupOpen);
+
+    setUpdateUserData((prev) => ({
+      ...prev,
+      bookname,
+      author,
+      publishdate,
+      id
+    }));
+  }
 
   //function to get the book data
   async function getBookData() {
@@ -74,9 +96,28 @@ function DisplayAllBook() {
                   <button className="bg-red-500 text-white py-2 px-4 rounded-lg">
                     Delete
                   </button>
-                  <button className="bg-lime-500 text-white py-2 px-4 rounded-lg">
+            
+                  <button
+                    onClick={() =>
+                      handlePopup(
+                        items.bookname,
+                        items.author,
+                        items.publishdate,
+                        items._id
+                      )
+                    }
+                    className="bg-lime-500 text-white py-2 px-4 rounded-lg"
+                  >
                     Update
                   </button>
+                  {isPopupOpen && (
+                    <BookUpdatePopup
+                      close={handlePopup}
+                      updateUserData={updateUserData}
+                      setUpdateUserData={setUpdateUserData}
+                      
+                    />
+                  )}
                 </td>
               </tr>
             ))}
