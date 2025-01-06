@@ -115,7 +115,8 @@ function DisplayAllBook() {
                       close={handlePopup}
                       updateUserData={updateUserData}
                       setUpdateUserData={setUpdateUserData}
-                      
+                      getBookData={getBookData}
+                      handlePopup={handlePopup}
                     />
                   )}
                 </td>

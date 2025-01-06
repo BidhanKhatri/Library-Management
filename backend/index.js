@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import cors from "cors";
 const app = express();
 import multer from "multer";
+import cookieParser from "cookie-parser";
 
 //importing database connection in index.js
 // import "./dbconfig/conn.js";
@@ -11,11 +12,14 @@ import connectDB from "./dbconfig/conn.js";
 import StudentModel from "./models/student-model.js";
 import AdminModel from "./models/admin-model.js";
 import BookModel from "./models/book-model.js";
+import generatedAccessToken from "./utils/generatedAccessToken.js";
+import authMiddleware from "./middlewares/auth.middleware.js";
 
 //middleware
 app.use(express.json());
 app.use(express.static("public"));
 app.use(cors());
+app.use(cookieParser());
 
 //multer configuration
 
@@ -99,9 +103,23 @@ app.post("/student-login", async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ msg: "Invalid credentails" });
     }
+    //generate access token
+    const access_token = await generatedAccessToken(validateUser._id);
+
+    //setcookie
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    };
+    res.cookie("accessToken", access_token, cookieOptions);
 
     if (validateUser && isMatch) {
-      return res.status(200).json("Login successful");
+      return res.status(200).json({
+        msg: "Login Successful",
+        accessToken: access_token,
+        role: validateUser.role,
+      });
     }
   } catch (error) {
     return res
@@ -191,10 +209,24 @@ app.post("/admin-login", async (req, res) => {
     if (!isMatch) {
       return res.status(200).json({ msg: "Invalid Credentials" });
     }
+    //generate access token
+    const access_token = await generatedAccessToken(findAdmin._id);
+
+    //setcookie
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    };
+    res.cookie("accessToken", access_token, cookieOptions);
+
     if (findAdmin && isMatch) {
-      return res
-        .status(200)
-        .json({ msg: "Login successful", status: 200, data: findAdmin });
+      return res.status(200).json({
+        msg: "Login successful",
+        status: 200,
+        access_token,
+        role: findAdmin.role,
+      });
     }
   } catch (error) {
     return res
@@ -246,9 +278,10 @@ app.post("/upload-book", upload.single("image"), async (req, res) => {
 });
 
 //API to update the single book
-app.patch("/update-book/:id", async (req, res) => {
+app.patch("/update-book/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
+    const image = req.file.filename;
 
     //validation if id is wrong
     if (!id) {
@@ -258,7 +291,7 @@ app.patch("/update-book/:id", async (req, res) => {
     //upadting the book details
     const updatedBook = await BookModel.findByIdAndUpdate(
       id,
-      { $set: req.body },
+      { $set: { ...req.body, image } },
       { new: true }
     );
 
@@ -279,7 +312,7 @@ app.patch("/update-book/:id", async (req, res) => {
 });
 
 //API to delete the single book
-app.delete("/delete-book/:id", async (req, res) => {
+app.delete("/delete-book/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -302,9 +335,15 @@ app.delete("/delete-book/:id", async (req, res) => {
 });
 
 //API to get all the book details
-app.get("/get-all-books", async (req, res) => {
+app.get("/get-all-books", authMiddleware, async (req, res) => {
   try {
     const findAllBook = await BookModel.find();
+
+    const userId = req.userId; //from middleware
+
+    if (!userId) {
+      return res.status(401).json({ msg: "Authorizarion token is required" });
+    }
 
     if (findAllBook) {
       return res.status(200).json({
@@ -341,6 +380,12 @@ app.delete("/delete-user/:id", async (req, res) => {
       error: true,
     });
   }
+});
+
+// API for logout
+app.get("/logout", (req, res) => {
+  res.clearCookie("accessToken");
+  return res.status(200).json({ msg: "Logout successfully" });
 });
 
 //connection function call

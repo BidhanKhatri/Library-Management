@@ -1,23 +1,37 @@
 import { RxCross1 } from "react-icons/rx";
 import { toast } from "react-toastify";
 
-function BookUpdatePopup({ close, updateUserData, setUpdateUserData }) {
+function BookUpdatePopup({
+  close,
+  updateUserData,
+  setUpdateUserData,
+  getBookData,
+  handlePopup,
+}) {
   console.log("data aayo ", updateUserData);
 
   //function update our book
 
   async function updateBook(e) {
+    e.preventDefault();
+
     try {
-      e.preventDefault();
+      const formData = new FormData();
+      formData.append("image", updateUserData.image);
+      formData.append("bookname", updateUserData.bookname);
+      formData.append("author", updateUserData.author);
+      formData.append("publishdate", updateUserData.publishdate);
+
       const result = await fetch(`/proxy/update-book/${updateUserData.id}`, {
-        headers: { "content-type": "application/json" },
         method: "PATCH",
-        body: JSON.stringify(updateUserData),
+        body: formData,
       });
       const data = await result.json();
 
-      if (data) {
+      if (data && data.status === 200) {
         toast.success(data.msg);
+        getBookData();
+        handlePopup();
       } else {
         toast.error(data.msg);
       }
@@ -84,6 +98,23 @@ function BookUpdatePopup({ close, updateUserData, setUpdateUserData }) {
                 setUpdateUserData({
                   ...updateUserData,
                   publishdate: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className="mt-2">
+            <label htmlFor="image">Change Image:</label>
+
+            <input
+              type="file"
+              className="p-2 rounded-md border w-full mt-2 outline-none focus:border-lime-500"
+              placeholder="enter book date"
+              id="image"
+              onChange={(e) =>
+                setUpdateUserData({
+                  ...updateUserData,
+                  image: e.target.files[0],
                 })
               }
             />
